@@ -1,0 +1,16 @@
+{
+  "name": "kesinti-takip-app",
+  "version": "1.0.0",
+  "description": "Elektrik, Su, Doğalgaz ve İnternet Kesinti Takip Sistemi",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Assets ready'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.3",
+    "@capacitor/core": "^6.2.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.3"
+  }
+}

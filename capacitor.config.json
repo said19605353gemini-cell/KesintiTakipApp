@@ -1,0 +1,6 @@
+{
+  "appId": "com.kesintitakip.app",
+  "appName": "KesintiTakip",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

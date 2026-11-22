@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Kesinti Takip Sistemi - Türkiye & Global</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #090e17;
+      --card-bg: rgba(22, 30, 49, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --electric: #eab308;
+      --water: #0ea5e9;
+      --gas: #f97316;
+      --net: #8b5cf6;
+      --safe-top: env(safe-area-inset-top, 24px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(234, 179, 8, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.12) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(var(--safe-bottom) + 20px);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #eab308, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Country / Scope Switcher */
+    .scope-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .scope-btn {
+      flex: 1;
+      text-align: center;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      transition: all 0.2s;
+    }
+
+    .scope-btn.active {
+      background: #38bdf8;
+      color: #04121e;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+
+    /* Category Filter Pills */
+    .cat-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .cat-scroll::-webkit-scrollbar { display: none; }
+
+    .cat-pill {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .cat-pill.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Summary Stats Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .stat-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Search & Filter Bar */
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px 14px 12px 40px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .search-box input:focus {
+      border-color: #38bdf8;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Outage Items List */
+    .outage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .outage-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .outage-item:active {
+      transform: scale(0.99);
+    }
+
+    .outage-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--item-color, #eab308);
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .item-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .item-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .item-location {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .item-desc {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .item-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 6px;
+      margin-top: 2px;
+    }
+
+    .status-tag {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    .status-ongoing {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-planned {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-resolved {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Outage Report Button */
+    .report-bar {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(249, 115, 22, 0.15));
+      border: 1px dashed rgba(234, 179, 8, 0.4);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Top Header -->
+    <div class="header-bar">
+      <div class="app-brand">
+        <div class="brand-icon">
+          <i data-lucide="zap-off" style="width: 22px; height: 22px;"></i>
+        </div>
+        <div>
+          <div class="brand-title">Kesinti Radar</div>
+          <div class="brand-sub">Elektrik, Su, Gaz ve Ağ Takibi</div>
+        </div>
+      </div>
+      <button id="btnRefresh" style="background: var(--card-bg); border: 1px solid var(--card-border); color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <i data-lucide="rotate-cw" style="width: 18px; height: 18px;"></i>
+      </button>
+    </div>
+
+    <!-- Country / Scope Selector -->
+    <div class="scope-tabs">
+      <button class="scope-btn active" data-scope="TR">🇹🇷 Türkiye Geneli</button>
+      <button class="scope-btn" data-scope="GLOBAL">🌐 Uluslararası / Global</button>
+    </div>
+
+    <!-- Live Statistics Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--electric);" id="countElectric">24</div>
+        <div class="stat-lbl">Elektrik</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--water);" id="countWater">12</div>
+        <div class="stat-lbl">Su</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--gas);" id="countGas">5</div>
+        <div class="stat-lbl">Doğalgaz</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--net);" id="countNet">8</div>
+        <div class="stat-lbl">İnternet/ISP</div>
+      </div>
+    </div>
+
+    <!-- Category Filter Scroll -->
+    <div class="cat-scroll">
+      <div class="cat-pill active" data-type="ALL">
+        <i data-lucide="layout-grid" style="width: 14px; height: 14px;"></i> Tümü
+      </div>
+      <div class="cat-pill" data-type="ELECTRIC">
+        <i data-lucide="zap" style="width: 14px; height: 14px; color: var(--electric);"></i> Elektrik
+      </div>
+      <div class="cat-pill" data-type="WATER">
+        <i data-lucide="droplet" style="width: 14px; height: 14px; color: var(--water);"></i> Su (İSKİ/ASKİ)
+      </div>
+      <div class="cat-pill" data-type="GAS">
+        <i data-lucide="flame" style="width: 14px; height: 14px; color: var(--gas);"></i> Doğalgaz
+      </div>
+      <div class="cat-pill" data-type="INTERNET">
+        <i data-lucide="wifi" style="width: 14px; height: 14px; color: var(--net);"></i> İnternet & Şebeke
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="search-box">
+      <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+      <input type="text" id="searchInput" placeholder="İl, ilçe veya servis sağlayıcı ara...">
+    </div>
+
+    <!-- Report Outage Quick Action -->
+    <div class="report-bar" onclick="alert('Kesinti Bildirim Formu: Bulunduğunuz bölgedeki kesintiyi iletmek için konum bilgisi alındı.')">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="alert-triangle" style="color: #eab308; width: 20px; height: 20px;"></i>
+        <div>
+          <div style="font-size: 13px; font-weight: 700; color: #fff;">Kesinti Bildir</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Sokağınızda kesinti mi var? Topluluğa haber verin</div>
+        </div>
+      </div>
+      <i data-lucide="chevron-right" style="color: #eab308; width: 18px; height: 18px;"></i>
+    </div>
+
+    <!-- Outages List Section -->
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 15px; font-weight: 700; color: #fff;" id="listTitle">Aktif & Planlı Kesintiler</span>
+      <span style="font-size: 11px; color: var(--text-muted);" id="filteredCount">0 kayıt</span>
+    </div>
+
+    <div class="outage-list" id="outageList">
+      <!-- Outage items rendered here -->
+    </div>
+
+  </div>
+
+  <script>
+    // Mock Data for Turkey & Global Outages
+    const outagesData = [
+      // Turkey Outages
+      { id: 1, scope: 'TR', type: 'ELECTRIC', provider: 'BEDAŞ', city: 'İstanbul', district: 'Beşiktaş / Levent', title: 'Planlı Bakım ve Şebeke Yenileme', desc: 'Trafo yenileme çalışması sebebiyle elektrik verilemeyecektir.', status: 'planned', time: '09:00 - 15:30', affected: '~4,200 Hane', color: '#eab308' },
+      { id: 2, scope: 'TR', type: 'WATER', provider: 'İSKİ', city: 'İstanbul', district: 'Kadıköy / Moda', title: 'Ana İsale Hattı Boru Patlağı', desc: 'Acil onarım ekipleri sevk edildi. Basınç düşüklüğü ve su kesintisi.', status: 'ongoing', time: '12:00 - 18:00', affected: '~8,500 Hane', color: '#0ea5e9' },
+      { id: 3, scope: 'TR', type: 'GAS', provider: 'İGDAŞ', city: 'İstanbul', district: 'Üsküdar / Çengelköy', title: 'Hat Güçlendirme Çalışması', desc: 'Güvenlik önlemleri dahilinde kontrollü gaz akışı durduruldu.', status: 'planned', time: '13:00 - 17:00', affected: '~1,100 Hane', color: '#f97316' },
+      { id: 4, scope: 'TR', type: 'INTERNET', provider: 'Türk Telekom / Fiber', city: 'Ankara', district: 'Çankaya / Kızılay', title: 'Fiber Altyapı İyileştirmesi', desc: 'Yüksek hızlı omurga güncellemesi sırasında internet erişim kesintisi.', status: 'ongoing', time: '02:00 - 06:00', affected: '~12,000 Kullanıcı', color: '#8b5cf6' },
+      { id: 5, scope: 'TR', type: 'ELECTRIC', provider: 'Başkent EDAŞ', city: 'Ankara', district: 'Yenimahalle / Batıkent', title: 'Arıza Giderme Çalışması', desc: 'Kablo kopması nedeniyle bölgesel kesinti yaşanmaktadır.', status: 'ongoing', time: 'Tahmini: 2 Saat', affected: '~3,000 Hane', color: '#eab308' },
+      { id: 6, scope: 'TR', type: 'WATER', provider: 'İZSU', city: 'İzmir', district: 'Konak / Alsancak', title: 'Pompa İstasyonu Bakımı', desc: 'İçme suyu şebeke pompalarında arıza giderimi.', status: 'resolved', time: 'Tamamlandı (14:30)', affected: '~5,000 Hane', color: '#0ea5e9' },
+      { id: 7, scope: 'TR', type: 'ELECTRIC', provider: 'GDZ Elektrik', city: 'İzmir', district: 'Bornova / Ege Ünv. Çevresi', title: 'Yüksek Gerilim Hat Testi', desc: 'Yeni trafo entegrasyonu sebebiyle kesinti yapılacaktır.', status: 'planned', time: 'Yarın 10:00 - 14:00', affected: '~2,400 Hane', color: '#eab308' },
+      
+      // Global Outages (Downdetector style & Infrastructure)
+      { id: 101, scope: 'GLOBAL', type: 'INTERNET', provider: 'Cloudflare / Global CDN', city: 'Avrupa & Kuzey Amerika', district: 'Tier-1 Omurga', title: 'BGP Yönlendirme Dalgalanması', desc: 'Avrupa ve ABD genelinde pop noktalarında gecikme ve paket kaybı bildirildi.', status: 'ongoing', time: 'Son 45 Dk', affected: 'Milyonlarca İstek', color: '#8b5cf6' },
+      { id: 102, scope: 'GLOBAL', type: 'INTERNET', provider: 'AWS (Amazon Web Services)', city: 'us-east-1 (Kuzey Virginia)', district: 'Veri Merkezi', title: 'EC2 & S3 API Hata Oranı Artışı', desc: 'Global ölçekte yüzlerce SaaS ve web servisinde yavaşlama tespit edildi.', status: 'ongoing', time: 'Devam Ediyor', affected: 'Global Servisler', color: '#8b5cf6' },
+      { id: 103, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'National Grid UK', city: 'İngiltere / Londra', district: 'Southwark & Greenwich', title: 'Trafo Merkezi Yangını Sonrası Kesinti', desc: 'Acil müdahale ekipleri şebekeyi yedek jeneratörlere aktarıyor.', status: 'ongoing', time: 'Tahmini: 3 Saat', affected: '~45,000 Hane', color: '#eab308' },
+      { id: 104, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'ERCOT Grid', city: 'ABD / Teksas', district: 'Houston Metro', title: 'Aşırı Yük Dengeleme Kesintisi', desc: 'Fırtına nedeniyle hat arızası ve dönemsel kontrollü elektrik kesintisi.', status: 'planned', time: '03:00 - 08:00 CDT', affected: '~110,000 Abone', color: '#eab308' },
+      { id: 105, scope: 'GLOBAL', type: 'WATER', provider: 'Veolia Eau', city: 'Fransa / Paris', district: '15ème Arrondissement', title: 'Şebeke Basınç Düşüşü', desc: 'Ana boru hattı yenileme çalışması nedeniyle su akışı sınırlandırıldı.', status: 'planned', time: '22:00 - 05:00', affected: '~18,000 Kişi', color: '#0ea5e9' }
+    ];
+
+    let currentScope = 'TR';
+    let currentType = 'ALL';
+    let searchQuery = '';
+
+    function getTypeName(type) {
+      switch(type) {
+        case 'ELECTRIC': return 'Elektrik';
+        case 'WATER': return 'Su';
+        case 'GAS': return 'Doğalgaz';
+        case 'INTERNET': return 'İnternet / Ağ';
+        default: return 'Genel';
+      }
+    }
+
+    function getStatusBadge(status) {
+      if (status === 'ongoing') return `<span class="status-tag status-ongoing">DEVAM EDİYOR</span>`;
+      if (status === 'planned') return `<span class="status-tag status-planned">PLANLI BAKIM</span>`;
+      return `<span class="status-tag status-resolved">ÇÖZÜLDÜ</span>`;
+    }
+
+    function renderList() {
+      const container = document.getElementById('outageList');
+      container.innerHTML = '';
+
+      const filtered = outagesData.filter(item => {
+        const matchScope = item.scope === currentScope;
+        const matchType = currentType === 'ALL' || item.type === currentType;
+        const matchSearch = searchQuery === '' || 
+          item.city.toLowerCase().includes(searchQuery.toLowerCase()) || 
+          item.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.provider.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchScope && matchType && matchSearch;
+      });
+
+      document.getElementById('filteredCount').textContent = `${filtered.length} kesinti`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+            <i data-lucide="check-circle-2" style="width: 48px; height: 48px; color: #10b981; margin-bottom: 8px;"></i>
+            <div style="font-size: 15px; font-weight: 700; color: #fff;">Kesinti Bulunmadı</div>
+            <div style="font-size: 12px; margin-top: 4px;">Seçilen kriterlerde şu anda aktif bir kesinti kaydı bulunmuyor.</div>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'outage-item';
+        card.style.setProperty('--item-color', item.color);
+        card.innerHTML = `
+          <div class="item-top">
+            <div class="item-badge" style="color: ${item.color};">
+              <span>●</span> ${item.provider} (${getTypeName(item.type)})
+            </div>
+            ${getStatusBadge(item.status)}
+          </div>
+          <div class="item-location">${item.city} - ${item.district}</div>
+          <div style="font-size: 13px; font-weight: 600; color: #e2e8f0;">${item.title}</div>
+          <div class="item-desc">${item.desc}</div>
+          <div class="item-meta">
+            <span class="item-time"><i data-lucide="clock" style="width: 12px; height: 12px;"></i> ${item.time}</span>
+            <span><i data-lucide="users" style="width: 12px; height: 12px;"></i> ${item.affected}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function updateStats() {
+      const scopeData = outagesData.filter(d => d.scope === currentScope);
+      document.getElementById('countElectric').textContent = scopeData.filter(d => d.type === 'ELECTRIC').length;
+      document.getElementById('countWater').textContent = scopeData.filter(d => d.type === 'WATER').length;
+      document.getElementById('countGas').textContent = scopeData.filter(d => d.type === 'GAS').length;
+      document.getElementById('countNet').textContent = scopeData.filter(d => d.type === 'INTERNET').length;
+    }
+
+    // Event Listeners
+    document.querySelectorAll('.scope-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentScope = btn.dataset.scope;
+        updateStats();
+        renderList();
+      });
+    });
+
+    document.querySelectorAll('.cat-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentType = pill.dataset.type;
+        renderList();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      renderList();
+    });
+
+    document.getElementById('btnRefresh').addEventListener('click', () => {
+      const btn = document.getElementById('btnRefresh');
+      btn.style.transform = 'rotate(360deg)';
+      btn.style.transition = 'transform 0.5s';
+      setTimeout(() => { btn.style.transform = ''; }, 500);
+      renderList();
+    });
+
+    // Init
+    lucide.createIcons();
+    updateStats();
+    renderList();
+  </script>
+</body>
+</html>

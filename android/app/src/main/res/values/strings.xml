@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KesintiTakip</string>
+    <string name="title_activity_main">KesintiTakip</string>
+    <string name="package_name">com.kesintitakip.app</string>
+    <string name="custom_url_scheme">com.kesintitakip.app</string>
+</resources>

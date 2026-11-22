@@ -1,0 +1,7 @@
+node_modules/
+android/app/build/
+android/.gradle/
+android/build/
+.gradle/
+.DS_Store
+Thumbs.db
