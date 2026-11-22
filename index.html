@@ -617,16 +617,41 @@
       });
     }
 
+    // Animate Counting (Kutucukların Otomatik Dolması)
+    function animateValue(id, target) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const current = parseInt(el.textContent) || 0;
+      if (current === target) return;
+      const duration = 400;
+      const startTime = performance.now();
+
+      function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const val = Math.round(current + (target - current) * ease);
+        el.textContent = val;
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(update);
+    }
+
     function renderUI() {
       const filtered = getFilteredData();
       document.getElementById('outageCount').textContent = `${filtered.length} kesinti listelendi`;
 
-      // Update 4 Stats
-      const scopeData = outages.filter(o => o.scope === currentScope);
-      document.getElementById('countElectric').textContent = scopeData.filter(o => o.type === 'ELECTRIC').length;
-      document.getElementById('countWater').textContent = scopeData.filter(o => o.type === 'WATER').length;
-      document.getElementById('countGas').textContent = scopeData.filter(o => o.type === 'GAS').length;
-      document.getElementById('countNet').textContent = scopeData.filter(o => o.type === 'INTERNET').length;
+      // Kutucuklar seçilen filtrelere (arama, kategori, tarih) göre dinamik olarak sayar
+      const electric = filtered.filter(o => o.type === 'ELECTRIC').length;
+      const water = filtered.filter(o => o.type === 'WATER').length;
+      const gas = filtered.filter(o => o.type === 'GAS').length;
+      const net = filtered.filter(o => o.type === 'INTERNET').length;
+
+      animateValue('countElectric', electric);
+      animateValue('countWater', water);
+      animateValue('countGas', gas);
+      animateValue('countNet', net);
 
       // Pagination
       const totalPages = Math.ceil(filtered.length / pageSize) || 1;
