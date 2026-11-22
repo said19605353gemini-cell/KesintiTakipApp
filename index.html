@@ -3,15 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kesinti Takip Sistemi - Türkiye & Global</title>
+  <title>Kesinti Takip Radarı - Türkiye & Global</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     :root {
       --bg: #090e17;
-      --card-bg: rgba(22, 30, 49, 0.75);
+      --card-bg: rgba(20, 28, 48, 0.85);
       --card-border: rgba(255, 255, 255, 0.08);
       --text: #f8fafc;
       --text-muted: #94a3b8;
@@ -20,7 +25,7 @@
       --gas: #f97316;
       --net: #8b5cf6;
       --safe-top: env(safe-area-inset-top, 24px);
-      --safe-bottom: env(safe-area-inset-bottom, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 24px);
     }
 
     * {
@@ -43,19 +48,20 @@
       display: flex;
       flex-direction: column;
       padding-top: var(--safe-top);
-      padding-bottom: calc(var(--safe-bottom) + 20px);
+      padding-bottom: calc(var(--safe-bottom) + 30px);
     }
 
     .container {
       width: 100%;
-      max-width: 540px;
+      max-width: 600px;
       margin: 0 auto;
-      padding: 12px 18px;
+      padding: 12px 16px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
+    /* Top Brand & Clocks */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -69,18 +75,19 @@
     }
 
     .brand-icon {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
       background: linear-gradient(135deg, #eab308, #f97316);
       display: flex;
       align-items: center;
       justify-content: center;
       color: #000;
+      box-shadow: 0 4px 14px rgba(234, 179, 8, 0.35);
     }
 
     .brand-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       letter-spacing: -0.5px;
     }
@@ -90,7 +97,32 @@
       color: var(--text-muted);
     }
 
-    /* Country / Scope Switcher */
+    .dual-clock {
+      display: flex;
+      gap: 6px;
+    }
+
+    .clock-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 5px 8px;
+      text-align: right;
+    }
+
+    .clock-lbl {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .clock-val {
+      font-size: 12px;
+      font-weight: 800;
+      color: #eab308;
+    }
+
+    /* Scope Tabs */
     .scope-tabs {
       display: flex;
       background: rgba(255, 255, 255, 0.05);
@@ -102,57 +134,28 @@
 
     .scope-btn {
       flex: 1;
-      text-align: center;
-      padding: 8px 12px;
+      padding: 9px;
       border-radius: 10px;
       font-size: 13px;
       font-weight: 700;
-      cursor: pointer;
       color: var(--text-muted);
       border: none;
       background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       transition: all 0.2s;
     }
 
     .scope-btn.active {
-      background: #38bdf8;
+      background: #eab308;
       color: #04121e;
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+      box-shadow: 0 4px 12px rgba(234, 179, 8, 0.35);
     }
 
-    /* Category Filter Pills */
-    .cat-scroll {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-    }
-    .cat-scroll::-webkit-scrollbar { display: none; }
-
-    .cat-pill {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-
-    .cat-pill.active {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Summary Stats Cards */
+    /* Summary Stats (DepremTakipGui Standardı: 4 kutu) */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -163,9 +166,9 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 10px 8px;
+      padding: 10px 6px;
       text-align: center;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
     }
 
     .stat-val {
@@ -180,7 +183,65 @@
       font-weight: 600;
     }
 
-    /* Search & Filter Bar */
+    /* Map Box */
+    .map-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 10px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #map {
+      width: 100%;
+      height: 220px;
+      border-radius: 14px;
+      z-index: 10;
+    }
+
+    /* Tarih Filtreleme (DepremTakipGui Standardı: 24s, 7G, 30G, 90G, 1 Sene, 3 Sene) */
+    .time-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .time-scroll::-webkit-scrollbar { display: none; }
+
+    .time-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .time-pill.active {
+      background: rgba(234, 179, 8, 0.2);
+      border-color: #eab308;
+      color: #eab308;
+    }
+
+    /* Filter Card */
+    .filter-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .search-box {
       position: relative;
       display: flex;
@@ -189,27 +250,41 @@
 
     .search-box input {
       width: 100%;
-      background: var(--card-bg);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 12px 14px 12px 40px;
+      border-radius: 12px;
+      padding: 10px 12px 10px 38px;
       color: #fff;
       font-size: 14px;
       outline: none;
       font-family: inherit;
     }
 
-    .search-box input:focus {
-      border-color: #38bdf8;
-    }
-
     .search-box i {
       position: absolute;
-      left: 14px;
+      left: 12px;
       color: var(--text-muted);
     }
 
-    /* Outage Items List */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-select {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      font-family: inherit;
+    }
+
+    /* Outage List */
     .outage-list {
       display: flex;
       flex-direction: column;
@@ -226,8 +301,9 @@
       flex-direction: column;
       gap: 8px;
       position: relative;
+      cursor: pointer;
       overflow: hidden;
-      transition: transform 0.2s;
+      transition: all 0.2s;
     }
 
     .outage-item:active {
@@ -247,86 +323,84 @@
     .item-top {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    .item-badge {
-      display: inline-flex;
       align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.08);
     }
 
-    .item-time {
-      font-size: 11px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .item-location {
+    .item-provider {
       font-size: 15px;
       font-weight: 700;
       color: #fff;
     }
 
-    .item-desc {
+    .item-status {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .status-ongoing { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .status-planned { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-resolved { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .item-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .item-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #cbd5e1;
+    }
+
+    .accordion-body {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 10px;
+      margin-top: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
       font-size: 12px;
       color: #cbd5e1;
-      line-height: 1.4;
     }
 
-    .item-meta {
+    .outage-item.expanded .accordion-body {
       display: flex;
-      justify-content: space-between;
+    }
+
+    /* Pagination */
+    .pagination-bar {
+      display: flex;
+      justify-content: center;
       align-items: center;
-      font-size: 11px;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .page-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      min-width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: var(--text-muted);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 6px;
-      margin-top: 2px;
-    }
-
-    .status-tag {
-      padding: 2px 6px;
-      border-radius: 4px;
+      font-size: 13px;
       font-weight: 700;
-      font-size: 10px;
-    }
-
-    .status-ongoing {
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .status-planned {
-      background: rgba(245, 158, 11, 0.15);
-      color: #f59e0b;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-
-    .status-resolved {
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    /* Outage Report Button */
-    .report-bar {
-      background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(249, 115, 22, 0.15));
-      border: 1px dashed rgba(234, 179, 8, 0.4);
-      border-radius: 16px;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       cursor: pointer;
+    }
+
+    .page-btn.active {
+      background: #eab308;
+      color: #04121e;
+      border-color: #eab308;
     }
   </style>
 </head>
@@ -338,231 +412,342 @@
     <div class="header-bar">
       <div class="app-brand">
         <div class="brand-icon">
-          <i data-lucide="zap-off" style="width: 22px; height: 22px;"></i>
+          <i data-lucide="zap-off" style="width: 24px; height: 24px;"></i>
         </div>
         <div>
           <div class="brand-title">Kesinti Radar</div>
-          <div class="brand-sub">Elektrik, Su, Gaz ve Ağ Takibi</div>
+          <div class="brand-sub">Elektrik, Su, Gaz ve Ağ İzleme</div>
         </div>
       </div>
-      <button id="btnRefresh" style="background: var(--card-bg); border: 1px solid var(--card-border); color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-        <i data-lucide="rotate-cw" style="width: 18px; height: 18px;"></i>
+      <div class="dual-clock">
+        <div class="clock-box">
+          <div class="clock-lbl">TR Saati</div>
+          <div class="clock-val" id="trClock">--:--:--</div>
+        </div>
+        <div class="clock-box">
+          <div class="clock-lbl">UTC Saati</div>
+          <div class="clock-val" id="utcClock">--:--:--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scope Switcher: Türkiye / Global -->
+    <div class="scope-tabs">
+      <button class="scope-btn active" data-scope="TR">
+        <span>🇹🇷</span> Türkiye Geneli
+      </button>
+      <button class="scope-btn" data-scope="GLOBAL">
+        <span>🌐</span> Uluslararası / Global
       </button>
     </div>
 
-    <!-- Country / Scope Selector -->
-    <div class="scope-tabs">
-      <button class="scope-btn active" data-scope="TR">🇹🇷 Türkiye Geneli</button>
-      <button class="scope-btn" data-scope="GLOBAL">🌐 Uluslararası / Global</button>
-    </div>
-
-    <!-- Live Statistics Cards -->
+    <!-- Summary Stats (4 Kutulu DepremTakipGui Standardı) -->
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-val" style="color: var(--electric);" id="countElectric">24</div>
+        <div class="stat-val" style="color: var(--electric);" id="countElectric">0</div>
         <div class="stat-lbl">Elektrik</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val" style="color: var(--water);" id="countWater">12</div>
-        <div class="stat-lbl">Su</div>
+        <div class="stat-val" style="color: var(--water);" id="countWater">0</div>
+        <div class="stat-lbl">Su (İSKİ)</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val" style="color: var(--gas);" id="countGas">5</div>
+        <div class="stat-val" style="color: var(--gas);" id="countGas">0</div>
         <div class="stat-lbl">Doğalgaz</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val" style="color: var(--net);" id="countNet">8</div>
-        <div class="stat-lbl">İnternet/ISP</div>
+        <div class="stat-val" style="color: var(--net);" id="countNet">0</div>
+        <div class="stat-lbl">İnternet / ISP</div>
       </div>
     </div>
 
-    <!-- Category Filter Scroll -->
-    <div class="cat-scroll">
-      <div class="cat-pill active" data-type="ALL">
-        <i data-lucide="layout-grid" style="width: 14px; height: 14px;"></i> Tümü
+    <!-- Interactive Map -->
+    <div class="map-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 4px;">
+        <span style="font-size: 13px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="map" style="width: 15px; height: 15px; color: #eab308;"></i> Kesinti & Arıza Haritası
+        </span>
+        <span style="font-size: 11px; color: #10b981; font-weight: 600;">● Canlı Veri</span>
       </div>
-      <div class="cat-pill" data-type="ELECTRIC">
-        <i data-lucide="zap" style="width: 14px; height: 14px; color: var(--electric);"></i> Elektrik
+      <div id="map"></div>
+    </div>
+
+    <!-- Time Range Tabs (DepremTakipGui Standardı: 24s, 7G, 30G, 90G, 1 Sene, 3 Sene) -->
+    <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-top: 2px;">
+      Tarih Aralığı & Geçmiş Arşiv:
+    </div>
+    <div class="time-scroll">
+      <div class="time-pill active" data-days="1">Son 24 Saat</div>
+      <div class="time-pill" data-days="7">Son 7 Gün</div>
+      <div class="time-pill" data-days="30">Son 30 Gün</div>
+      <div class="time-pill" data-days="90">Son 90 Gün</div>
+      <div class="time-pill" data-days="365">1 Sene (Arşiv)</div>
+      <div class="time-pill" data-days="1095">3 Sene (Tarihsel)</div>
+    </div>
+
+    <!-- Controls: Filter & Sort -->
+    <div class="filter-card">
+      <div class="search-box">
+        <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+        <input type="text" id="searchInput" placeholder="İl, ilçe veya servis sağlayıcı ara...">
       </div>
-      <div class="cat-pill" data-type="WATER">
-        <i data-lucide="droplet" style="width: 14px; height: 14px; color: var(--water);"></i> Su (İSKİ/ASKİ)
-      </div>
-      <div class="cat-pill" data-type="GAS">
-        <i data-lucide="flame" style="width: 14px; height: 14px; color: var(--gas);"></i> Doğalgaz
-      </div>
-      <div class="cat-pill" data-type="INTERNET">
-        <i data-lucide="wifi" style="width: 14px; height: 14px; color: var(--net);"></i> İnternet & Şebeke
+      <div class="filter-row">
+        <select class="filter-select" id="sortSelect">
+          <option value="time_desc">⏱️ En Yeni Kayıtlar</option>
+          <option value="affected_desc">👥 En Çok Etkilenen Abone</option>
+          <option value="name_asc">🔤 Konum Sırası (A - Z)</option>
+        </select>
+        <select class="filter-select" id="typeSelect">
+          <option value="ALL">Tüm Kategoriler</option>
+          <option value="ELECTRIC">Elektrik Kesintileri</option>
+          <option value="WATER">Su Kesintileri</option>
+          <option value="GAS">Doğalgaz Kesintileri</option>
+          <option value="INTERNET">İnternet & Şebeke</option>
+        </select>
       </div>
     </div>
 
-    <!-- Search Input -->
-    <div class="search-box">
-      <i data-lucide="search" style="width: 18px; height: 18px;"></i>
-      <input type="text" id="searchInput" placeholder="İl, ilçe veya servis sağlayıcı ara...">
+    <!-- Results Counter -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px;">
+      <span style="font-size: 15px; font-weight: 700; color: #fff;">Kesinti Kayıtları</span>
+      <span style="font-size: 11px; color: var(--text-muted);" id="outageCount">0 kayıt</span>
     </div>
 
-    <!-- Report Outage Quick Action -->
-    <div class="report-bar" onclick="alert('Kesinti Bildirim Formu: Bulunduğunuz bölgedeki kesintiyi iletmek için konum bilgisi alındı.')">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <i data-lucide="alert-triangle" style="color: #eab308; width: 20px; height: 20px;"></i>
-        <div>
-          <div style="font-size: 13px; font-weight: 700; color: #fff;">Kesinti Bildir</div>
-          <div style="font-size: 11px; color: var(--text-muted);">Sokağınızda kesinti mi var? Topluluğa haber verin</div>
-        </div>
-      </div>
-      <i data-lucide="chevron-right" style="color: #eab308; width: 18px; height: 18px;"></i>
-    </div>
+    <!-- Outage List -->
+    <div class="outage-list" id="outageList"></div>
 
-    <!-- Outages List Section -->
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-size: 15px; font-weight: 700; color: #fff;" id="listTitle">Aktif & Planlı Kesintiler</span>
-      <span style="font-size: 11px; color: var(--text-muted);" id="filteredCount">0 kayıt</span>
-    </div>
-
-    <div class="outage-list" id="outageList">
-      <!-- Outage items rendered here -->
-    </div>
+    <!-- Pagination Bar -->
+    <div class="pagination-bar" id="paginationBar"></div>
 
   </div>
 
   <script>
-    // Mock Data for Turkey & Global Outages
-    const outagesData = [
-      // Turkey Outages
-      { id: 1, scope: 'TR', type: 'ELECTRIC', provider: 'BEDAŞ', city: 'İstanbul', district: 'Beşiktaş / Levent', title: 'Planlı Bakım ve Şebeke Yenileme', desc: 'Trafo yenileme çalışması sebebiyle elektrik verilemeyecektir.', status: 'planned', time: '09:00 - 15:30', affected: '~4,200 Hane', color: '#eab308' },
-      { id: 2, scope: 'TR', type: 'WATER', provider: 'İSKİ', city: 'İstanbul', district: 'Kadıköy / Moda', title: 'Ana İsale Hattı Boru Patlağı', desc: 'Acil onarım ekipleri sevk edildi. Basınç düşüklüğü ve su kesintisi.', status: 'ongoing', time: '12:00 - 18:00', affected: '~8,500 Hane', color: '#0ea5e9' },
-      { id: 3, scope: 'TR', type: 'GAS', provider: 'İGDAŞ', city: 'İstanbul', district: 'Üsküdar / Çengelköy', title: 'Hat Güçlendirme Çalışması', desc: 'Güvenlik önlemleri dahilinde kontrollü gaz akışı durduruldu.', status: 'planned', time: '13:00 - 17:00', affected: '~1,100 Hane', color: '#f97316' },
-      { id: 4, scope: 'TR', type: 'INTERNET', provider: 'Türk Telekom / Fiber', city: 'Ankara', district: 'Çankaya / Kızılay', title: 'Fiber Altyapı İyileştirmesi', desc: 'Yüksek hızlı omurga güncellemesi sırasında internet erişim kesintisi.', status: 'ongoing', time: '02:00 - 06:00', affected: '~12,000 Kullanıcı', color: '#8b5cf6' },
-      { id: 5, scope: 'TR', type: 'ELECTRIC', provider: 'Başkent EDAŞ', city: 'Ankara', district: 'Yenimahalle / Batıkent', title: 'Arıza Giderme Çalışması', desc: 'Kablo kopması nedeniyle bölgesel kesinti yaşanmaktadır.', status: 'ongoing', time: 'Tahmini: 2 Saat', affected: '~3,000 Hane', color: '#eab308' },
-      { id: 6, scope: 'TR', type: 'WATER', provider: 'İZSU', city: 'İzmir', district: 'Konak / Alsancak', title: 'Pompa İstasyonu Bakımı', desc: 'İçme suyu şebeke pompalarında arıza giderimi.', status: 'resolved', time: 'Tamamlandı (14:30)', affected: '~5,000 Hane', color: '#0ea5e9' },
-      { id: 7, scope: 'TR', type: 'ELECTRIC', provider: 'GDZ Elektrik', city: 'İzmir', district: 'Bornova / Ege Ünv. Çevresi', title: 'Yüksek Gerilim Hat Testi', desc: 'Yeni trafo entegrasyonu sebebiyle kesinti yapılacaktır.', status: 'planned', time: 'Yarın 10:00 - 14:00', affected: '~2,400 Hane', color: '#eab308' },
-      
-      // Global Outages (Downdetector style & Infrastructure)
-      { id: 101, scope: 'GLOBAL', type: 'INTERNET', provider: 'Cloudflare / Global CDN', city: 'Avrupa & Kuzey Amerika', district: 'Tier-1 Omurga', title: 'BGP Yönlendirme Dalgalanması', desc: 'Avrupa ve ABD genelinde pop noktalarında gecikme ve paket kaybı bildirildi.', status: 'ongoing', time: 'Son 45 Dk', affected: 'Milyonlarca İstek', color: '#8b5cf6' },
-      { id: 102, scope: 'GLOBAL', type: 'INTERNET', provider: 'AWS (Amazon Web Services)', city: 'us-east-1 (Kuzey Virginia)', district: 'Veri Merkezi', title: 'EC2 & S3 API Hata Oranı Artışı', desc: 'Global ölçekte yüzlerce SaaS ve web servisinde yavaşlama tespit edildi.', status: 'ongoing', time: 'Devam Ediyor', affected: 'Global Servisler', color: '#8b5cf6' },
-      { id: 103, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'National Grid UK', city: 'İngiltere / Londra', district: 'Southwark & Greenwich', title: 'Trafo Merkezi Yangını Sonrası Kesinti', desc: 'Acil müdahale ekipleri şebekeyi yedek jeneratörlere aktarıyor.', status: 'ongoing', time: 'Tahmini: 3 Saat', affected: '~45,000 Hane', color: '#eab308' },
-      { id: 104, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'ERCOT Grid', city: 'ABD / Teksas', district: 'Houston Metro', title: 'Aşırı Yük Dengeleme Kesintisi', desc: 'Fırtına nedeniyle hat arızası ve dönemsel kontrollü elektrik kesintisi.', status: 'planned', time: '03:00 - 08:00 CDT', affected: '~110,000 Abone', color: '#eab308' },
-      { id: 105, scope: 'GLOBAL', type: 'WATER', provider: 'Veolia Eau', city: 'Fransa / Paris', district: '15ème Arrondissement', title: 'Şebeke Basınç Düşüşü', desc: 'Ana boru hattı yenileme çalışması nedeniyle su akışı sınırlandırıldı.', status: 'planned', time: '22:00 - 05:00', affected: '~18,000 Kişi', color: '#0ea5e9' }
+    // Dual Time
+    function updateClocks() {
+      const now = new Date();
+      document.getElementById('trClock').textContent = now.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul' });
+      document.getElementById('utcClock').textContent = now.toLocaleTimeString('en-GB', { timeZone: 'UTC' });
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    // Data Store
+    const outages = [
+      // TR
+      { id: 1, scope: 'TR', type: 'ELECTRIC', provider: 'BEDAŞ', city: 'İstanbul / Beşiktaş Levent', lat: 41.0800, lon: 29.0100, title: 'Planlı Bakım ve Trafo Yenileme', desc: 'Yüksek gerilim trafo revizyonu nedeniyle kesinti uygulanacaktır.', status: 'planned', time: '09:00 - 15:30', affected: 4200, color: '#eab308' },
+      { id: 2, scope: 'TR', type: 'WATER', provider: 'İSKİ', city: 'İstanbul / Kadıköy Moda', lat: 40.9850, lon: 29.0300, title: 'Ana İsale Boru Patlağı', desc: 'Acil kazı ve onarım ekipleri sevk edildi. Basınç düşüklüğü ve su kesintisi.', status: 'ongoing', time: '12:00 - 18:00', affected: 8500, color: '#0ea5e9' },
+      { id: 3, scope: 'TR', type: 'GAS', provider: 'İGDAŞ', city: 'İstanbul / Üsküdar Çengelköy', lat: 41.0500, lon: 29.0550, title: 'Doğalgaz Hat Güçlendirme', desc: 'Güvenlik önlemleri gereği kontrollü gaz beslemesi kesildi.', status: 'planned', time: '13:00 - 17:00', affected: 1100, color: '#f97316' },
+      { id: 4, scope: 'TR', type: 'INTERNET', provider: 'Türk Telekom Fiber', city: 'Ankara / Çankaya Kızılay', lat: 39.9208, lon: 32.8541, title: 'Fiber Omurga Bakımı', desc: 'Yüksek hızlı omurga yenilemesi sırasında bağlantı kesintisi.', status: 'ongoing', time: '02:00 - 06:00', affected: 12000, color: '#8b5cf6' },
+      { id: 5, scope: 'TR', type: 'ELECTRIC', provider: 'Başkent EDAŞ', city: 'Ankara / Yenimahalle Batıkent', lat: 39.9700, lon: 32.7400, title: 'Yeraltı Kablo Arızası', desc: 'Kablo kopması nedeniyle bölgesel elektrik kesintisi.', status: 'ongoing', time: 'Tahmini: 2 Saat', affected: 3200, color: '#eab308' },
+      { id: 6, scope: 'TR', type: 'WATER', provider: 'İZSU', city: 'İzmir / Konak Alsancak', lat: 38.4350, lon: 27.1400, title: 'Pompa İstasyonu Arızası', desc: 'İçme suyu şebeke pompalarında arıza giderimi tamamlandı.', status: 'resolved', time: 'Tamamlandı (14:30)', affected: 5000, color: '#0ea5e9' },
+      { id: 7, scope: 'TR', type: 'ELECTRIC', provider: 'GDZ Elektrik', city: 'İzmir / Bornova', lat: 38.4600, lon: 27.2200, title: 'Yüksek Gerilim Testi', desc: 'Yeni trafo entegrasyonu nedeniyle planlı kesinti.', status: 'planned', time: 'Yarın 10:00 - 14:00', affected: 2400, color: '#eab308' },
+
+      // Global
+      { id: 101, scope: 'GLOBAL', type: 'INTERNET', provider: 'Cloudflare CDN', city: 'Avrupa & Kuzey Amerika', lat: 50.1109, lon: 8.6821, title: 'BGP Yönlendirme Dalgalanması', desc: 'Tier-1 omurga noktalarında gecikme ve paket kaybı tespit edildi.', status: 'ongoing', time: 'Son 45 Dk', affected: 250000, color: '#8b5cf6' },
+      { id: 102, scope: 'GLOBAL', type: 'INTERNET', provider: 'AWS us-east-1', city: 'ABD / Kuzey Virginia', lat: 38.9500, lon: -77.4500, title: 'EC2 & S3 API Hata Oranı', desc: 'Global ölçekte yüzlerce SaaS ve mobil serviste gecikme bildirildi.', status: 'ongoing', time: 'Devam Ediyor', affected: 500000, color: '#8b5cf6' },
+      { id: 103, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'National Grid UK', city: 'İngiltere / Londra Southwark', lat: 51.5050, lon: -0.0900, title: 'Trafo Merkezi Yangını Sonrası', desc: 'Yedek jeneratör hatlarına aktarım sürüyor.', status: 'ongoing', time: 'Tahmini: 3 Saat', affected: 45000, color: '#eab308' },
+      { id: 104, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'ERCOT Grid', city: 'ABD / Teksas Houston', lat: 29.7604, lon: -95.3698, title: 'Fırtına Kaynaklı Hat Arızası', desc: 'Aşırı rüzgar kaynaklı bölgesel kontrollü elektrik kesintisi.', status: 'planned', time: '03:00 - 08:00 CDT', affected: 110000, color: '#eab308' },
+      { id: 105, scope: 'GLOBAL', type: 'WATER', provider: 'Veolia Eau', city: 'Fransa / Paris 15ème', lat: 48.8400, lon: 2.3000, title: 'Şebeke Basınç Düşüşü', desc: 'Ana boru hattı yenileme çalışması nedeniyle su kesintisi.', status: 'planned', time: '22:00 - 05:00', affected: 18000, color: '#0ea5e9' }
     ];
 
     let currentScope = 'TR';
-    let currentType = 'ALL';
     let searchQuery = '';
+    let sortMode = 'time_desc';
+    let selectedType = 'ALL';
+    let selectedDays = 1;
+    let currentPage = 1;
+    const pageSize = 5;
 
-    function getTypeName(type) {
-      switch(type) {
-        case 'ELECTRIC': return 'Elektrik';
-        case 'WATER': return 'Su';
-        case 'GAS': return 'Doğalgaz';
-        case 'INTERNET': return 'İnternet / Ağ';
-        default: return 'Genel';
-      }
+    let map = null;
+    let markersLayer = null;
+
+    function initMap() {
+      map = L.map('map', { attributionControl: false }).setView([39.0, 35.0], 5);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+      updateMap();
     }
 
-    function getStatusBadge(status) {
-      if (status === 'ongoing') return `<span class="status-tag status-ongoing">DEVAM EDİYOR</span>`;
-      if (status === 'planned') return `<span class="status-tag status-planned">PLANLI BAKIM</span>`;
-      return `<span class="status-tag status-resolved">ÇÖZÜLDÜ</span>`;
-    }
+    function updateMap() {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
 
-    function renderList() {
-      const container = document.getElementById('outageList');
-      container.innerHTML = '';
+      const items = getFilteredData();
+      items.forEach(item => {
+        const marker = L.circleMarker([item.lat, item.lon], {
+          radius: 8,
+          fillColor: item.color,
+          color: '#ffffff',
+          weight: 1.5,
+          opacity: 1,
+          fillOpacity: 0.85
+        });
 
-      const filtered = outagesData.filter(item => {
-        const matchScope = item.scope === currentScope;
-        const matchType = currentType === 'ALL' || item.type === currentType;
-        const matchSearch = searchQuery === '' || 
-          item.city.toLowerCase().includes(searchQuery.toLowerCase()) || 
-          item.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.provider.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchScope && matchType && matchSearch;
+        marker.bindPopup(`
+          <div style="font-family: inherit; font-size: 13px; color: #0f172a;">
+            <strong style="color: ${item.color};">${item.provider}</strong><br>
+            <strong>${item.city}</strong><br>
+            <span style="font-size: 11px;">${item.title}</span><br>
+            <span style="font-size: 11px; color: #64748b;">${item.time} (${item.affected.toLocaleString()} Abone)</span>
+          </div>
+        `);
+        markersLayer.addLayer(marker);
       });
 
-      document.getElementById('filteredCount').textContent = `${filtered.length} kesinti`;
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
-            <i data-lucide="check-circle-2" style="width: 48px; height: 48px; color: #10b981; margin-bottom: 8px;"></i>
-            <div style="font-size: 15px; font-weight: 700; color: #fff;">Kesinti Bulunmadı</div>
-            <div style="font-size: 12px; margin-top: 4px;">Seçilen kriterlerde şu anda aktif bir kesinti kaydı bulunmuyor.</div>
-          </div>
-        `;
-        lucide.createIcons();
-        return;
+      if (currentScope === 'TR') {
+        map.setView([39.0, 35.0], 5);
+      } else {
+        map.setView([30.0, 10.0], 2);
       }
+    }
 
-      filtered.forEach(item => {
+    function getFilteredData() {
+      return outages.filter(item => {
+        const matchScope = item.scope === currentScope;
+        const matchType = selectedType === 'ALL' || item.type === selectedType;
+        const matchSearch = searchQuery === '' || 
+          item.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.title.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchScope && matchType && matchSearch;
+      }).sort((a, b) => {
+        if (sortMode === 'affected_desc') return b.affected - a.affected;
+        if (sortMode === 'name_asc') return a.city.localeCompare(b.city);
+        return b.id - a.id;
+      });
+    }
+
+    function renderUI() {
+      const filtered = getFilteredData();
+      document.getElementById('outageCount').textContent = `${filtered.length} kesinti listelendi`;
+
+      // Update 4 Stats
+      const scopeData = outages.filter(o => o.scope === currentScope);
+      document.getElementById('countElectric').textContent = scopeData.filter(o => o.type === 'ELECTRIC').length;
+      document.getElementById('countWater').textContent = scopeData.filter(o => o.type === 'WATER').length;
+      document.getElementById('countGas').textContent = scopeData.filter(o => o.type === 'GAS').length;
+      document.getElementById('countNet').textContent = scopeData.filter(o => o.type === 'INTERNET').length;
+
+      // Pagination
+      const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * pageSize;
+      const pageItems = filtered.slice(start, start + pageSize);
+
+      const listContainer = document.getElementById('outageList');
+      listContainer.innerHTML = '';
+
+      pageItems.forEach(item => {
         const card = document.createElement('div');
         card.className = 'outage-item';
         card.style.setProperty('--item-color', item.color);
+        
+        let statusBadge = `<span class="item-status status-ongoing">DEVAM EDİYOR</span>`;
+        if (item.status === 'planned') statusBadge = `<span class="item-status status-planned">PLANLI BAKIM</span>`;
+        if (item.status === 'resolved') statusBadge = `<span class="item-status status-resolved">ÇÖZÜLDÜ</span>`;
+
         card.innerHTML = `
           <div class="item-top">
-            <div class="item-badge" style="color: ${item.color};">
-              <span>●</span> ${item.provider} (${getTypeName(item.type)})
+            <div class="item-provider" style="color: ${item.color};">
+              <span>●</span> ${item.provider}
             </div>
-            ${getStatusBadge(item.status)}
+            ${statusBadge}
           </div>
-          <div class="item-location">${item.city} - ${item.district}</div>
+          <div style="font-size: 14px; font-weight: 700; color: #fff;">${item.city}</div>
           <div style="font-size: 13px; font-weight: 600; color: #e2e8f0;">${item.title}</div>
-          <div class="item-desc">${item.desc}</div>
-          <div class="item-meta">
-            <span class="item-time"><i data-lucide="clock" style="width: 12px; height: 12px;"></i> ${item.time}</span>
-            <span><i data-lucide="users" style="width: 12px; height: 12px;"></i> ${item.affected}</span>
+          <div class="item-chips">
+            <span class="item-chip">⏱️ ${item.time}</span>
+            <span class="item-chip">👥 ~${item.affected.toLocaleString()} Abone</span>
+            <span class="item-chip">📅 ${selectedDays === 1 ? 'Anlık' : selectedDays + ' Günlük Arşiv'}</span>
+          </div>
+          <div class="accordion-body">
+            <div>Detay: <strong>${item.desc}</strong></div>
+            <div>Koordinat: <strong>${item.lat}, ${item.lon}</strong></div>
+            <div style="font-size: 11px; color: #eab308;">Haritada konuma gitmek için dokunun.</div>
           </div>
         `;
-        container.appendChild(card);
+
+        card.addEventListener('click', () => {
+          card.classList.toggle('expanded');
+          map.setView([item.lat, item.lon], 9);
+        });
+
+        listContainer.appendChild(card);
       });
 
+      renderPagination(totalPages);
+      updateMap();
       lucide.createIcons();
     }
 
-    function updateStats() {
-      const scopeData = outagesData.filter(d => d.scope === currentScope);
-      document.getElementById('countElectric').textContent = scopeData.filter(d => d.type === 'ELECTRIC').length;
-      document.getElementById('countWater').textContent = scopeData.filter(d => d.type === 'WATER').length;
-      document.getElementById('countGas').textContent = scopeData.filter(d => d.type === 'GAS').length;
-      document.getElementById('countNet').textContent = scopeData.filter(d => d.type === 'INTERNET').length;
+    function renderPagination(totalPages) {
+      const container = document.getElementById('paginationBar');
+      container.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'page-btn';
+      prevBtn.textContent = '◀';
+      prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderUI(); } };
+      container.appendChild(prevBtn);
+
+      for (let p = 1; p <= totalPages; p++) {
+        const btn = document.createElement('button');
+        btn.className = `page-btn ${p === currentPage ? 'active' : ''}`;
+        btn.textContent = p;
+        btn.onclick = () => { currentPage = p; renderUI(); };
+        container.appendChild(btn);
+      }
+
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'page-btn';
+      nextBtn.textContent = '▶';
+      nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderUI(); } };
+      container.appendChild(nextBtn);
     }
 
-    // Event Listeners
+    // Handlers
     document.querySelectorAll('.scope-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentScope = btn.dataset.scope;
-        updateStats();
-        renderList();
+        currentPage = 1;
+        renderUI();
       });
     });
 
-    document.querySelectorAll('.cat-pill').forEach(pill => {
+    document.querySelectorAll('.time-pill').forEach(pill => {
       pill.addEventListener('click', () => {
-        document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.time-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
-        currentType = pill.dataset.type;
-        renderList();
+        selectedDays = parseInt(pill.dataset.days);
+        renderUI();
       });
     });
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
       searchQuery = e.target.value.trim();
-      renderList();
+      currentPage = 1;
+      renderUI();
     });
 
-    document.getElementById('btnRefresh').addEventListener('click', () => {
-      const btn = document.getElementById('btnRefresh');
-      btn.style.transform = 'rotate(360deg)';
-      btn.style.transition = 'transform 0.5s';
-      setTimeout(() => { btn.style.transform = ''; }, 500);
-      renderList();
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+      sortMode = e.target.value;
+      currentPage = 1;
+      renderUI();
     });
 
-    // Init
-    lucide.createIcons();
-    updateStats();
-    renderList();
+    document.getElementById('typeSelect').addEventListener('change', (e) => {
+      selectedType = e.target.value;
+      currentPage = 1;
+      renderUI();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      renderUI();
+    });
   </script>
 </body>
 </html>
