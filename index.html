@@ -428,6 +428,19 @@
       color: #04121e;
       border-color: #eab308;
     }
+      /* Option text color fix: Windows beyaz pop-up açtığı için option metinleri daima koyu/siyah ve net görünür */
+    select option {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      font-weight: 700 !important;
+      font-size: 13px !important;
+      padding: 10px !important;
+    }
+
+    select option:checked {
+      background-color: #3b82f6 !important;
+      color: #ffffff !important;
+    }
   </style>
 </head>
 <body>
