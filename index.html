@@ -489,19 +489,20 @@
         updateClock();
 
         const outages = [
-            { id: 1, scope: 'TR', type: 'ELECTRIC', provider: 'BEDAŞ', city: 'İstanbul / Beşiktaş Levent', lat: 41.0800, lon: 29.0100, title: 'Planlı Bakım ve Trafo Yenileme', status: 'planned', time: '09:00 - 15:30', affected: 4200, color: '#EAB308' },
-            { id: 2, scope: 'TR', type: 'WATER', provider: 'İSKİ', city: 'İstanbul / Kadıköy Moda', lat: 40.9850, lon: 29.0300, title: 'Ana İsale Boru Patlağı', status: 'ongoing', time: '12:00 - 18:00', affected: 8500, color: '#0EA5E9' },
-            { id: 3, scope: 'TR', type: 'GAS', provider: 'İGDAŞ', city: 'İstanbul / Üsküdar Çengelköy', lat: 41.0500, lon: 29.0550, title: 'Doğalgaz Hat Güçlendirme', status: 'planned', time: '13:00 - 17:00', affected: 1100, color: '#F97316' },
-            { id: 4, scope: 'TR', type: 'INTERNET', provider: 'Türk Telekom', city: 'Ankara / Kızılay', lat: 39.9208, lon: 32.8541, title: 'Fiber Omurga Bakımı', status: 'ongoing', time: '02:00 - 06:00', affected: 12000, color: '#8B5CF6' },
-            { id: 5, scope: 'TR', type: 'ELECTRIC', provider: 'Başkent EDAŞ', city: 'Ankara / Batıkent', lat: 39.9700, lon: 32.7400, title: 'Yeraltı Kablo Arızası', status: 'ongoing', time: 'Tahmini: 2 Saat', affected: 3200, color: '#EAB308' },
-            { id: 6, scope: 'TR', type: 'WATER', provider: 'İZSU', city: 'İzmir / Alsancak', lat: 38.4350, lon: 27.1400, title: 'Pompa İstasyonu Arızası', status: 'resolved', time: 'Tamamlandı', affected: 5000, color: '#0EA5E9' },
-            { id: 101, scope: 'GLOBAL', type: 'INTERNET', provider: 'Cloudflare', city: 'Avrupa & ABD Tier-1', lat: 50.1109, lon: 8.6821, title: 'BGP Yönlendirme Dalgalanması', status: 'ongoing', time: 'Son 45 Dk', affected: 250000, color: '#8B5CF6' },
-            { id: 102, scope: 'GLOBAL', type: 'INTERNET', provider: 'AWS us-east-1', city: 'ABD / Kuzey Virginia', lat: 38.9500, lon: -77.4500, title: 'EC2 & S3 API Hata Oranı', status: 'ongoing', time: 'Devam Ediyor', affected: 500000, color: '#8B5CF6' },
-            { id: 103, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'National Grid', city: 'İngiltere / Londra', lat: 51.5050, lon: -0.0900, title: 'Trafo Merkezi Yangını Sonrası', status: 'ongoing', time: 'Tahmini: 3 Saat', affected: 45000, color: '#EAB308' }
+            { id: 1, scope: 'TR', type: 'ELECTRIC', provider: 'BEDAŞ', city: 'İstanbul / Beşiktaş Levent', lat: 41.0800, lon: 29.0100, title: 'Planlı Bakım ve Trafo Yenileme', status: 'planned', time: '09:00 - 15:30', affected: 4200, color: '#EAB308', daysAgo: 1 },
+            { id: 2, scope: 'TR', type: 'WATER', provider: 'İSKİ', city: 'İstanbul / Kadıköy Moda', lat: 40.9850, lon: 29.0300, title: 'Ana İsale Boru Patlağı', status: 'ongoing', time: '12:00 - 18:00', affected: 8500, color: '#0EA5E9', daysAgo: 1 },
+            { id: 3, scope: 'TR', type: 'GAS', provider: 'İGDAŞ', city: 'İstanbul / Üsküdar Çengelköy', lat: 41.0500, lon: 29.0550, title: 'Doğalgaz Hat Güçlendirme', status: 'planned', time: '13:00 - 17:00', affected: 1100, color: '#F97316', daysAgo: 3 },
+            { id: 4, scope: 'TR', type: 'INTERNET', provider: 'Türk Telekom', city: 'Ankara / Kızılay', lat: 39.9208, lon: 32.8541, title: 'Fiber Omurga Bakımı', status: 'ongoing', time: '02:00 - 06:00', affected: 12000, color: '#8B5CF6', daysAgo: 7 },
+            { id: 5, scope: 'TR', type: 'ELECTRIC', provider: 'Başkent EDAŞ', city: 'Ankara / Batıkent', lat: 39.9700, lon: 32.7400, title: 'Yeraltı Kablo Arızası', status: 'ongoing', time: 'Tahmini: 2 Saat', affected: 3200, color: '#EAB308', daysAgo: 15 },
+            { id: 6, scope: 'TR', type: 'WATER', provider: 'İZSU', city: 'İzmir / Alsancak', lat: 38.4350, lon: 27.1400, title: 'Pompa İstasyonu Arızası', status: 'resolved', time: 'Tamamlandı', affected: 5000, color: '#0EA5E9', daysAgo: 30 },
+            { id: 101, scope: 'GLOBAL', type: 'INTERNET', provider: 'Cloudflare', city: 'Avrupa & ABD Tier-1', lat: 50.1109, lon: 8.6821, title: 'BGP Yönlendirme Dalgalanması', status: 'ongoing', time: 'Son 45 Dk', affected: 250000, color: '#8B5CF6', daysAgo: 1 },
+            { id: 102, scope: 'GLOBAL', type: 'INTERNET', provider: 'AWS us-east-1', city: 'ABD / Kuzey Virginia', lat: 38.9500, lon: -77.4500, title: 'EC2 & S3 API Hata Oranı', status: 'ongoing', time: 'Devam Ediyor', affected: 500000, color: '#8B5CF6', daysAgo: 1 },
+            { id: 103, scope: 'GLOBAL', type: 'ELECTRIC', provider: 'National Grid', city: 'İngiltere / Londra', lat: 51.5050, lon: -0.0900, title: 'Trafo Merkezi Yangını Sonrası', status: 'ongoing', time: 'Tahmini: 3 Saat', affected: 45000, color: '#EAB308', daysAgo: 7 }
         ];
 
         let currentScope = 'TR';
         let currentType = 'ALL';
+        let currentDays = 1;
         let searchQuery = '';
         let currentPage = 1;
         const pageSize = 5;
@@ -544,7 +545,8 @@
                 const matchSearch = searchQuery === '' || 
                     o.city.toLowerCase().includes(searchQuery) || 
                     o.provider.toLowerCase().includes(searchQuery);
-                return matchScope && matchType && matchSearch;
+                const matchTime = (o.daysAgo || 1) <= currentDays;
+                return matchScope && matchType && matchSearch && matchTime;
             });
         }
 
