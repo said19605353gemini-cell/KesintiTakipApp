@@ -155,28 +155,31 @@
       box-shadow: 0 4px 12px rgba(234, 179, 8, 0.35);
     }
 
-    /* Summary Stats (DepremTakipGui Standardı: Responsive 2x2 veya 4 sütun) */
+    /* Summary Stats - 100% Responsive Grid (Kutucuklar asla sağa kaymaz, tam kutulanır) */
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
       width: 100%;
+      box-sizing: border-box;
     }
 
-    @media (min-width: 480px) {
+    @media (min-width: 520px) {
       .stats-row {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
     }
 
     .stat-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 12px 10px;
+      border-radius: 12px;
+      padding: 10px 6px;
       text-align: center;
       backdrop-filter: blur(12px);
-      min-width: 0; /* İç içe taşmayı engeller */
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -185,21 +188,24 @@
     }
 
     .stat-val {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       line-height: 1.2;
       margin-bottom: 2px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .stat-lbl {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      width: 100%;
+      max-width: 100%;
     }
 
     /* Map Box */
@@ -222,24 +228,24 @@
     }
 
     /* Tarih Filtreleme (DepremTakipGui Standardı: 24s, 7G, 30G, 90G, 1 Sene, 3 Sene) */
-    .time-scroll {
-      display: flex;
+        .time-scroll {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 2px;
+      width: 100%;
+      box-sizing: border-box;
     }
-    .time-scroll::-webkit-scrollbar { display: none; }
 
     .time-pill {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 6px 14px;
-      font-size: 12px;
+      border-radius: 8px;
+      padding: 8px 4px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-muted);
       cursor: pointer;
+      text-align: center;
       white-space: nowrap;
       transition: all 0.2s;
     }
